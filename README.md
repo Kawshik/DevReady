@@ -14,7 +14,8 @@ DevReady/
 ├── src/
 │   └── main.py         # The core logic
 ├── dist/               # Output folder for the EXE
-└── pyproject.toml      # Managed by uv
+├── pyproject.toml      # Managed by uv
+└── LICENSE             <-- LICENSE file
 ```
 
 ## ⚙️ Configuration (JSON Schema)
@@ -124,3 +125,7 @@ To change settings without re-building the code, simply place a JSON file with t
 * **Permissions:** You may need to run the executable with sufficient privileges if the ports you are trying to clear are being held by system-level processes.
 * **Executable Portability:** The tool uses `sys._MEIPASS` to resolve internal paths, meaning you can move the `.exe` to any folder on your computer and it will still function correctly.
 * **Filename Matching:** The executable name and the JSON filename must match for the auto-discovery to work.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
