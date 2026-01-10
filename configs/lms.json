@@ -1,0 +1,36 @@
+{
+    "cursor_bin": "cursor", 
+    "tasks": [
+        {
+            "name": "Backend",
+            "path": "path/to/backend",
+            "action": "terminal",
+            "command": "uv run uvicorn app:app --reload",
+            "port": 8000,
+            "cursor": true,
+            "health_check": "http://127.0.0.1:8000/docs"
+        },
+        {
+            "name": "Frontend",
+            "path": "path/to/backend",
+            "action": "terminal",
+            "command": "npm run dev",
+            "port": 4321,
+            "cursor": true,
+            "health_check": "http://localhost:4321"
+        },
+        {
+            "name": "Salesforce",
+            "action": "browser",
+            "url": "https://login.salesforce.com",
+            "delay": 1
+        },
+        {
+            "name": "Frontend",
+            "action": "browser",
+            "url": "http://localhost:4321",
+            "delay": 1
+        }
+    ]
+
+}
