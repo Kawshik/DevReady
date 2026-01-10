@@ -26,10 +26,11 @@
             "delay": 1
         },
         {
-            "name": "LMS Frontend",
+            "name": "Frontend",
             "action": "browser",
             "url": "http://localhost:4321",
             "delay": 1
         }
     ]
+
 }
