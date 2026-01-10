@@ -7,5 +7,7 @@ wheels/
 *.egg-info
 *.spec
 uv.lock
+configs/*.json
+
 # Virtual environments
 .venv
