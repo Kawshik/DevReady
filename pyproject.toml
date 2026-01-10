@@ -1,0 +1,9 @@
+[project]
+name = "DevReady"
+version = "0.1.0"
+description = "One-click developer environment orchestrator"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pyinstaller>=6.17.0",
+]
