@@ -1,9 +1,9 @@
 {
-    "cursor_bin": "cursor",
+    "cursor_bin": "cursor", 
     "tasks": [
         {
             "name": "Backend",
-            "path": "C:/Users/kawsh/OneDrive/Desktop/Work/Api Gateway",
+            "path": "path/to/your/backend",
             "action": "terminal",
             "command": "uv run uvicorn app:app --reload",
             "port": 8000,
@@ -12,7 +12,7 @@
         },
         {
             "name": "Frontend",
-            "path": "C:/Users/kawsh/OneDrive/Desktop/Work/Astro Project/llm-frontend-v2",
+            "path": "path/to/your/frontend",
             "action": "terminal",
             "command": "npm run dev",
             "port": 4321,
