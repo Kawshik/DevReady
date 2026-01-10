@@ -41,7 +41,7 @@ DevReady uses **Smart Discovery** to find its configuration based on its own fil
             "health_check": "http://127.0.0.1:8000/docs"
         },
         {
-            "name": "LMS Frontend",
+            "name": "Frontend",
             "action": "browser",
             "url": "http://localhost:4321",
             "delay": 1
@@ -66,23 +66,43 @@ DevReady uses **Smart Discovery** to find its configuration based on its own fil
 | **delay** | `int` | **(Browser)** Seconds to wait before opening. |
 
 
-## 🛠️ Setup & Build
+## 🛠️ Getting Started
 
-This project is designed to run within the **uv** ecosystem for maximum performance and isolation.
+Follow these steps to set up **DevReady** on your local machine.
 
-### 1. Initialize UV
-In your project root, run the following commands to set up the environment and dependencies:
+### 1. Prerequisites
+This project uses **uv** for ultra-fast dependency management. If you don't have it installed:
+
+* **Windows:** `powershell -c "irm https://astral.sh/uv/install.ps1 | iex"`
+* **macOS/Linux:** `curl -LsSf https://astral.sh/uv/install.sh | sh`
+
+### 2. Clone and Initialize
+```bash
+# Clone the repository
+git clone <your-repo-url>
+cd DevReady
+
+# Synchronize dependencies and virtual environment
+uv sync
+```
+### 3. Create Your Configuration
+Since local paths vary by machine, configuration files are excluded from Git.
+
+1. Navigate to the `configs/` folder.
+2. Create a file named `YOUR-FILE-NAME.json`.
+3. Use the template provided in the documentation, replacing the `path` attributes with your local project directories.
+
+### 4. Build the Executable
+Run the build script to generate your portable launcher. This will package your `YOUR-FILE-NAME.json` inside the executable.
 
 ```bash
-uv init
-uv add pyinstaller
-```
-### 2. Create the Executable
-The `build.py` script in the root folder handles the PyInstaller configuration and embeds your JSON.
-``` bash
-# Run the build script
 uv run build.py
 ```
+### 5. Launch
+Your compiled tool is now ready in the `dist/` folder:
+
+* **Windows:** `dist/YOUR-FILE-NAME.exe`
+* **macOS/Linux:** `./dist/YOUR-FILE-NAME`
 
 
 ## 🖱️ Usage
