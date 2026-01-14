@@ -6,7 +6,76 @@ import os
 import sys
 import json
 import urllib.request
+import re # Added for comment stripping
 from pathlib import Path
+
+class InternalTaskManager:
+    """Handles the injection of tasks into Cursor/VS Code's integrated terminal."""
+    
+    @staticmethod
+    def strip_comments(text):
+        """Removes // and /* */ comments from a string to make it valid JSON."""
+        pattern = r"((?<!\\)\".*?(?<!\\)\"|(?<!\\)'.*?(?<!\\)')|(/\*.*?\*/|//.*$)"
+        regex = re.compile(pattern, re.MULTILINE | re.DOTALL)
+        def _replacer(match):
+            if match.group(2) is not None: return ""
+            else: return match.group(1)
+        return regex.sub(_replacer, text)
+
+    def sync_task(self, project_path, task_name, command):
+        """Main orchestrator for the Read-Modify-Write cycle of tasks.json."""
+        vscode_dir = Path(project_path) / ".vscode"
+        tasks_file = vscode_dir / "tasks.json"
+        
+        # 1. Ensure .vscode directory exists
+        vscode_dir.mkdir(exist_ok=True)
+        
+        # 2. Load existing tasks or create fresh structure
+        data = {"version": "2.0.0", "tasks": []}
+        if tasks_file.exists():
+            try:
+                with open(tasks_file, 'r', encoding='utf-8') as f:
+                    content = self.strip_comments(f.read())
+                    data = json.loads(content)
+            except Exception as e:
+                print(f"⚠️ Warning: Could not parse existing tasks.json: {e}. Starting fresh.")
+
+        # 3. Build the DevReady task object
+        new_task = {
+            "label": f"DevReady: {task_name}",
+            "type": "shell",
+            "command": command,
+            "problemMatcher": [],
+            "runOptions": { "runOn": "folderOpen" },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "group": "devready"
+            },
+            "metadata": { "origin": "devready" } # Fingerprint for point 3
+        }
+
+        # 4. Smart Merge: Check for existing DevReady task
+        task_list = data.get("tasks", [])
+        existing_index = -1
+        for i, t in enumerate(task_list):
+            # Matches if name is same AND it has our fingerprint
+            if t.get("label") == new_task["label"] and t.get("metadata", {}).get("origin") == "devready":
+                existing_index = i
+                break
+        
+        if existing_index != -1:
+            task_list[existing_index] = new_task
+            print(f"🔄 Updated existing integrated task: {new_task['label']}")
+        else:
+            task_list.append(new_task)
+            print(f"➕ Added new integrated task: {new_task['label']}")
+
+        data["tasks"] = task_list
+
+        # 5. Save back to file
+        with open(tasks_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=4)
 
 def get_base_path():
     """Returns the path to the directory containing the executable or script."""
@@ -93,13 +162,25 @@ def run_task(task, os_type, cursor_bin):
             return
 
         cmd = task["command"]
-        if os_type == "Windows":
-            subprocess.Popen(f'start "{task["name"]}" cmd /K "cd /d {path} && {cmd}"', shell=True)
-        elif os_type == "Darwin":
-            subprocess.Popen(["osascript", "-e", f'tell application "Terminal" to do script "cd {path} && {cmd}"'])
         
-        if task.get("cursor"):
+        # Check for integrated terminal configuration
+        term_config = task.get("terminal_settings", {})
+        if term_config.get("mode") == "integrated":
+            # Use InternalTaskManager to setup Cursor's internal terminal
+            manager = InternalTaskManager()
+            manager.sync_task(path, task["name"], cmd)
+            # We still launch Cursor to ensure the folder opens and the task triggers
             subprocess.Popen([cursor_bin, str(path)], shell=(os_type == "Windows"))
+        else:
+            # Standard external terminal logic
+            if os_type == "Windows":
+                subprocess.Popen(f'start "{task["name"]}" cmd /K "cd /d {path} && {cmd}"', shell=True)
+            elif os_type == "Darwin":
+                subprocess.Popen(["osascript", "-e", f'tell application "Terminal" to do script "cd {path} && {cmd}"'])
+            
+            # Open folder in Cursor separately if requested
+            if task.get("cursor"):
+                subprocess.Popen([cursor_bin, str(path)], shell=(os_type == "Windows"))
             
         if task.get("health_check"):
             wait_for_health_check(task["health_check"])
