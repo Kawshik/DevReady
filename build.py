@@ -15,6 +15,22 @@ DIST_DIR = Path("dist")
 BUILD_DIR = Path("build")    # Added for cleanup
 SPEC_FILE = Path(f"{CONFIG_FILE_NAME}.spec") # Added for cleanup
 
+def get_icon_path():
+    """Checks for fixed icon.ico or icon.icns files in the root folder only."""
+    os_type = platform.system()
+    # Use .ico for Windows, .icns for macOS
+    target_ext = ".ico" if os_type == "Windows" else ".icns"
+    icon_name = f"icon{target_ext}"
+    
+    icon_path = Path(icon_name)
+    
+    if icon_path.exists():
+        print(f"🎨 Icon Found in root: {icon_path}")
+        return str(icon_path)
+            
+    print("ℹ️ No icon.ico/icns found in root (using system default).")
+    return None
+
 def cleanup():
     """Removes temporary build artifacts."""
     print("🧹 Cleaning up temporary build files...")
@@ -53,8 +69,14 @@ def build():
         "--distpath", str(DIST_DIR),
         "--workpath", str(BUILD_DIR), # Explicitly set build folder
         "--name", CONFIG_FILE_NAME,
-        str(MAIN_SCRIPT)
     ]
+
+    # --- APPLY ICON FROM ROOT ---
+    icon_path = get_icon_path()
+    if icon_path:
+        cmd.extend(["--icon", icon_path])
+
+    cmd.append(str(MAIN_SCRIPT))
 
     print(f"🚀 Building [{CONFIG_FILE_NAME}]...")
     print(f"📦 Bundling: {INTERNAL_JSON}")

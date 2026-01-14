@@ -16,6 +16,8 @@ DevReady/
 ├── dist/               # Output folder for the EXE
 ├── build/              # (Temporary) Created during build, then auto-deleted
 ├── pyproject.toml      # Managed by uv
+├── icon.ico            <-- (Windows)
+├── icon.icns           <-- (macOS)
 └── LICENSE             <-- LICENSE file
 ```
 
