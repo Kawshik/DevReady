@@ -40,7 +40,7 @@ DevReady uses **Smart Discovery** to find its configuration based on its own fil
             "command": "uv run uvicorn app:app --reload",
             "port": 8000,
             "cursor": true,
-            "health_check": "[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)",
+            "health_check": "http://127.0.0.1:8000/docs",
             "terminal_settings": {
                 "mode": "integrated"
             }
