@@ -14,6 +14,7 @@ DevReady/
 ├── src/
 │   └── main.py         # The core logic
 ├── dist/               # Output folder for the EXE
+├── build/              # (Temporary) Created during build, then auto-deleted
 ├── pyproject.toml      # Managed by uv
 └── LICENSE             <-- LICENSE file
 ```
@@ -39,7 +40,10 @@ DevReady uses **Smart Discovery** to find its configuration based on its own fil
             "command": "uv run uvicorn app:app --reload",
             "port": 8000,
             "cursor": true,
-            "health_check": "http://127.0.0.1:8000/docs"
+            "health_check": "http://127.0.0.1:8000/docs",
+            "terminal_settings": {
+                "mode": "integrated"
+            }
         },
         {
             "name": "Frontend",
@@ -63,6 +67,7 @@ DevReady uses **Smart Discovery** to find its configuration based on its own fil
 | **port** | `int` | *(Optional)* Port to kill before launching to avoid conflicts. |
 | **health_check** | `string` | *(Optional)* URL to ping. Waits for `200 OK` before proceeding. |
 | **cursor** | `bool` | If `true`, opens the folder in Cursor. |
+| **terminal_settings** | `object` | *(Optional)* Use `{"mode": "integrated"}` to run inside Cursor. |
 | **url** | `string` | **(Browser)** The website to open. |
 | **delay** | `int` | **(Browser)** Seconds to wait before opening. |
 
@@ -114,12 +119,22 @@ Double-click the generated `.exe` in the `dist/` folder. It will automatically l
 ### Hot-Swapping Config (Side-car)
 To change settings without re-building the code, simply place a JSON file with the same name as the executable (e.g., `lms.json`) next to the `.exe`. DevReady will prioritize this external file.
 
+## 🖥️ Integrated Terminal Support
 
+When `terminal_settings: {"mode": "integrated"}` is used, DevReady performs a **Smart Merge**:
+
+1. **Discovery:** It checks for an existing `.vscode/tasks.json` in your project path.
+2. **Comment-Safe Parsing:** It can read user files even if they contain `//` comments.
+3. **Non-Destructive Merge:** It adds or updates a task named `DevReady: [Task Name]` while leaving your existing manual tasks untouched.
+4. **Fingerprinting:** Every generated task is tagged with `"origin": "devready"`, allowing the engine to distinguish its tasks from yours.
+5. **Auto-Run:** Tasks are configured with `runOn: folderOpen`, so they trigger as soon as Cursor launches.
 
 ## ⚠️ Important Notes
 
 * **Path Formatting:** Always use **forward slashes** (`/`) in your JSON configuration (e.g., `C:/Projects/App`). Backslashes (`\`) are escape characters in JSON and will cause the configuration to fail.
 * **Port Management:** The script will attempt to force-close any process currently using the ports specified in your config. This prevents "Address already in use" errors when restarting your environment.
+* **Integrated Mode Logic:** In `integrated` mode, the script skips opening an external OS terminal and hands the command off to Cursor's internal panel.
+* **Smart Cleanup:** The `build.py` script automatically removes build artifacts after a successful run to keep your repository root clean.
 * **Cursor Integration:** To use the `cursor: true` feature, ensure the Cursor CLI is installed.
     * *How:* Open Cursor, press `Ctrl+Shift+P`, and run **"Shell Command: Install 'cursor' command in PATH"**.
 * **Permissions:** You may need to run the executable with sufficient privileges if the ports you are trying to clear are being held by system-level processes.

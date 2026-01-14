@@ -8,7 +8,10 @@
             "command": "uv run uvicorn app:app --reload",
             "port": 8000,
             "cursor": true,
-            "health_check": "http://127.0.0.1:8000/docs"
+            "health_check": "http://127.0.0.1:8000/docs",
+            "terminal_settings": {
+                "mode": "integrated"
+            }
         },
         {
             "name": "Frontend",
@@ -17,7 +20,10 @@
             "command": "npm run dev",
             "port": 4321,
             "cursor": true,
-            "health_check": "http://localhost:4321"
+            "health_check": "http://localhost:4321",
+            "terminal_settings": {
+                "mode": "integrated"
+            }
         },
         {
             "name": "Salesforce",
